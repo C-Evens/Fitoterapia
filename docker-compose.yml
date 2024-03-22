@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: fitoterapia
+
+
+  springboot:
+    build:
+      context: ./api_fitoterapia
+      dockerfile: Dockerfile
+    container_name: springboot
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/
+      SPRING_DATA_MONGODB_USERNAME: ${MONGO_USERNAME}
+      SPRING_DATA_MONGODB_PASSWORD: ${MONGO_PASSWORD}
+      SPRING_DATA_MONGODB_DATABASE: fitoterapia
+
+  vite_react:
+    build:
+      context: ./cliente-fitoterapia
+      dockerfile: Dockerfile
+    container_name: vite_react
+    ports:
+      - "5173:5173"
+    depends_on:
+      - mongodb
+    
+
+volumes:
+  mongodb_data:
